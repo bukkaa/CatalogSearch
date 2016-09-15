@@ -10,16 +10,6 @@ public class ProdEntity {
     private int catId;
     private String name;
     private BigDecimal price;
-    private String catName;
-
-    // TODO: 15.09.2016 кажется, Hinernate не может спокойно воспринимать здесь не свои поля. может быть есть какая-то аннотация, исключающая поля из запроса?
-    public String getCatName() {
-        return catName;
-    }
-
-    public void setCatName(String catName) {
-        this.catName = catName;
-    }
 
     @Id
     @Column(name = "ID", nullable = false)

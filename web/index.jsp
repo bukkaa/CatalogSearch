@@ -1,5 +1,6 @@
 <%@ page import="test.improve.shared.ProdEntity" %>
 <%@ page import="static test.improve.SearchTerminal.productsList" %>
+<%@ page import="static test.improve.SearchTerminal.categories" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
   <head>
@@ -9,7 +10,7 @@
   <p>Прайс-лист</p>
 
 <!-- Поля для ввода запроса -->
-  <table id="searchTable">
+  <table>
       <tr>
           <td>
               Категория:
@@ -47,8 +48,7 @@
 
   <br>
   <br>
-
-<!-- доделать таблицу вывода -->
+<!-- Таблица вывода результатов -->
   <table>
       <tr>
           <td>
@@ -64,7 +64,7 @@
       <%for (ProdEntity product : productsList){%>
       <tr>
           <td>
-              <% out.print(product.getCatName()); %>
+              <% out.print(categories.get(product.getCatId())); %>
           </td>
           <td>
               <% out.print(product.getName()); %>
