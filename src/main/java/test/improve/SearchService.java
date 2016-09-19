@@ -6,21 +6,18 @@ import org.hibernate.query.Query;
 import test.improve.shared.CatEntity;
 import test.improve.shared.ProdEntity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class SearchService {
 
-    private List<ProdEntity> productsList = new ArrayList<>();
     private Map<Integer, String> categories = new HashMap<>();
     private List<CatEntity> categoriesList = new ArrayList<>();
     private SessionFactory sessionFactory;
     private Session session;
 
     /**
-     * Конструктор с созданием сессии Hibernate
+     * Конструктор с созданием сессии Hibernate и
+     * вызовом метода для инициализации мапы categories
      */
     SearchService() {
         sessionFactory = HibernateUtil.getSessionFactory();
@@ -42,18 +39,50 @@ class SearchService {
     }
 
     /**
-     * Запускает проверку введенных критериев. Если они верны,
-     * вызывает метод для получения запрашиваемых товаров из БД
-     * @param inputQuery введенные критерии
+     * Собирает запрос из введенных критериев и выполняет его
+     *
+     * @param search массив с введенными критериями
      * @return список товаров, соответствующих критериям
      */
-    List<ProdEntity> getProductsList(String inputQuery) {
+    List<ProdEntity> getProductsList(String [] search) {
 
-        //if (checkInput(inputQuery))
-            getProductsFromDB(inputQuery);
-        //else return null;
+        String query ;
+        String tempQuery = "from ProdEntity where ";
 
-        return productsList;
+        // преобразовываем название категории в id_cat
+        if (!search[0].equals("null")) tempQuery += "catId = " + getCategoryName(search[0]) + " and ";
+
+        // формируем сторку запроса по введенным критериям
+        for (int i = 1; i < search.length; i++) {
+            if (!search[i].equals("null")) {
+                    tempQuery += search[i] + " and ";
+                }
+        }
+
+        // отрезаем лишнюю запятую с пробелом
+        query = tempQuery.substring(0, tempQuery.length() - 5);
+        System.out.println("query: " + query);
+
+        Query result = session.createQuery(query);
+
+        return result.list();
+    }
+
+    /**
+     * Возвращает id категории по названию, которое ввел пользователь
+     * @param category введенная категория
+     * @return id этой категории или 0, если нет совпадений
+     */
+    private int getCategoryName(String category) {
+        int catId = 0;
+        String s;
+
+        for (Map.Entry entry : categories.entrySet()) {
+            s = (String) entry.getValue();
+            if (s.toLowerCase().contains(category.toLowerCase()) ) catId = (int) entry.getKey();
+        }
+
+        return catId;
     }
 
     /**
@@ -63,29 +92,4 @@ class SearchService {
         return categories;
     }
 
-    /**
-     * порверяет критерии на правильность ввода
-     * @param inputQuery введенный запрос
-     * @return true - если запрос верен,
-     *          false - если нет.
-     */
-    private boolean checkInput(String inputQuery) {
-
-        // inputQuery must be shorter than 255 chars and consist of numbers and letters
-        if ( !inputQuery.matches("^[0-9a-zA-Zа-яА-Я]{1,255}$") )
-            return false;
-        return true;
-    }
-
-    /**
-     * Проводит поиск товаров по БД в соответствии с критериями
-     * @param inputQuery критерии поиска
-     */
-    private void getProductsFromDB(String inputQuery) {
-        // TODO: 14.09.2016 получить результат из БД (исопльзовать JPA)
-        Query query;
-
-        query = session.createQuery("from ProdEntity");
-        productsList = query.list();
-    }
 }
